@@ -90,6 +90,17 @@ export class UsersService {
     return { status: 200, message: 'Usuario desactivado exitosamente' };
   }
 
+  async activateUser(id: string): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    await this.userRepository.update(id, { isActive: true });
+    return { status: 200, message: 'Usuario reactivado exitosamente' };
+  }
+
+  async updatePasswordHash(id: string, passwordHash: string): Promise<void> {
+    await this.userRepository.update(id, { passwordHash });
+  }
+
   mapToUserData(user: User): UserData {
     return {
       id: user.id,

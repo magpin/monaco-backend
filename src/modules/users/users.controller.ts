@@ -46,4 +46,11 @@ export class UsersController {
   deactivate(@Param('id') id: string) {
     return this.usersService.deactivateUser(id);
   }
+
+  @Patch(':id/activate')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Reactivar usuario (Admin)' })
+  activate(@Param('id') id: string) {
+    return this.usersService.activateUser(id);
+  }
 }
