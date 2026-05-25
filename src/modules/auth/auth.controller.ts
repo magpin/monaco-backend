@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -8,6 +8,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { Public } from '../../common/decorators';
 
 interface AuthenticatedRequest {
@@ -46,5 +47,14 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Token no válido o expirado' })
   getProfile(@Request() req: AuthenticatedRequest) {
     return this.authService.getProfile(req.user.id);
+  }
+
+  @Patch('change-password')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Cambiar contraseña del usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Contraseña actualizada exitosamente' })
+  @ApiResponse({ status: 400, description: 'Contraseña actual incorrecta' })
+  changePassword(@Request() req: AuthenticatedRequest, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.id, dto);
   }
 }

@@ -2,12 +2,14 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthResponse } from './types/auth-response.type';
 import { UserResponse } from '../users/types/user-response.type';
 
@@ -105,5 +107,22 @@ export class AuthService {
       message: 'Perfil obtenido exitosamente',
       data: this.usersService.mapToUserData(user),
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<UserResponse> {
+    const user = await this.usersService.findByEmail(
+      (await this.usersService.findById(userId))!.email,
+    );
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    const isValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!isValid) {
+      throw new BadRequestException('La contraseña actual es incorrecta');
+    }
+
+    const newHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.usersService.updatePasswordHash(userId, newHash);
+
+    return { status: 200, message: 'Contraseña actualizada exitosamente' };
   }
 }

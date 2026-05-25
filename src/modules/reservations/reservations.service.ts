@@ -102,7 +102,8 @@ export class ReservationsService {
   async findAll(userId: string, userRole: UserRole, page = 1, limit = 10) {
     const qb = this.reservationRepository
       .createQueryBuilder('r')
-      .leftJoinAndSelect('r.room', 'room');
+      .leftJoinAndSelect('r.room', 'room')
+      .leftJoinAndSelect('r.user', 'user');
 
     if (userRole === UserRole.CLIENT) {
       qb.where('r.user_id = :userId', { userId });
@@ -118,7 +119,7 @@ export class ReservationsService {
       status: 200,
       message: 'Reservas obtenidas exitosamente',
       data: {
-        items: items.map((r) => this.mapToData(r, r.room?.roomNumber)),
+        items: items.map((r) => this.mapToData(r, r.room?.roomNumber, r.user)),
         total,
         page,
         limit,
@@ -287,12 +288,14 @@ export class ReservationsService {
     return !!conflict;
   }
 
-  mapToData(reservation: Reservation, roomNumber?: string): ReservationData {
+  mapToData(reservation: Reservation, roomNumber?: string, user?: { firstName?: string; lastName?: string } | null): ReservationData {
     return {
       id: reservation.id,
       userId: reservation.userId,
       roomId: reservation.roomId,
       roomNumber,
+      clientFirstName: user?.firstName,
+      clientLastName: user?.lastName,
       checkInDate: reservation.checkInDate,
       checkOutDate: reservation.checkOutDate,
       totalNights: reservation.totalNights,

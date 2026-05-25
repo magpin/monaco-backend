@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserData, UserResponse } from './types/user-response.type';
 
 @Injectable()
@@ -72,6 +73,14 @@ export class UsersService {
     Object.assign(user, updateUserDto);
     const saved = await this.userRepository.save(user);
     return { status: 200, message: 'Usuario actualizado exitosamente', data: this.mapToUserData(saved) };
+  }
+
+  async updateProfile(id: string, dto: UpdateProfileDto): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    Object.assign(user, dto);
+    const saved = await this.userRepository.save(user);
+    return { status: 200, message: 'Perfil actualizado exitosamente', data: this.mapToUserData(saved) };
   }
 
   async deactivateUser(id: string): Promise<UserResponse> {

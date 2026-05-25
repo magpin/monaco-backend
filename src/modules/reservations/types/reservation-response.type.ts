@@ -5,6 +5,8 @@ export type ReservationData = {
   userId: string;
   roomId: string;
   roomNumber?: string;
+  clientFirstName?: string;
+  clientLastName?: string;
   checkInDate: string;
   checkOutDate: string;
   totalNights: number;

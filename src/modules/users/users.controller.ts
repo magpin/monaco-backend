@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Roles } from '../../common/decorators';
 import { UserRole } from './entities/user.entity';
 
@@ -24,6 +25,12 @@ export class UsersController {
   @ApiOperation({ summary: 'Listar todos los usuarios (Admin)' })
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Patch('profile')
+  @ApiOperation({ summary: 'Actualizar perfil propio' })
+  updateProfile(@Req() req: any, @Body() updateProfileDto: UpdateProfileDto) {
+    return this.usersService.updateProfile(req.user.id, updateProfileDto);
   }
 
   @Patch(':id')
